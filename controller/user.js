@@ -74,3 +74,20 @@ exports.loginUser = async (req, res) => {
     });
   }
 };
+
+exports.currentUser = async (req, res) => {
+  try {
+    const { userId } = req;
+    const user = await User.findById(userId);
+    res.status(200).json({
+      success: true,
+      message: "You are authorized to go to the protected route",
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
