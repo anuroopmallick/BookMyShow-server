@@ -4,6 +4,7 @@ const connectToDb = require("./config/db");
 const userRouter = require("./routes/userRoutes");
 const movieRouter = require("./routes/movieRoutes");
 const theatreRouter = require("./routes/theatreRoutes");
+const showRouter = require("./routes/showRoutes");
 const requestLoggerMiddleWare = require("./middleware/loggerMiddleware");
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(requestLoggerMiddleWare);
 app.use("/api/users", userRouter);
 app.use("/api/movies", movieRouter);
 app.use("/api/theatres", theatreRouter);
+app.use("/api/shows", showRouter);
 
 app.listen(8082, () => {
   console.log("Server running on port 8082");
