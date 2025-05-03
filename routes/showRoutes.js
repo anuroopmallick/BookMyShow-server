@@ -15,7 +15,7 @@ showRouter.put("/:id", updateShow);
 
 showRouter.delete("/:id", deleteShow);
 
-showRouter.get("/get-all-shows-by-theatre", getAllShowsByTheatre);
+showRouter.post("/get-all-shows-by-theatre", getAllShowsByTheatre);
 
 showRouter.get("/get-all-theatres-by-movie", getAllTheatresByMovie);
 
