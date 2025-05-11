@@ -34,6 +34,23 @@ exports.getAllMovies = async (req, res) => {
   }
 };
 
+exports.getMovie = async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const movie = await Movie.findById(movieId);
+    res.status(200).json({
+      success: true,
+      message: "Retrieved the movie",
+      data: movie,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 exports.updateMovie = async (req, res) => {
   try {
     const movieId = req.params.id;
