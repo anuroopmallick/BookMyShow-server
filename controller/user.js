@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const emailHelper = require("../utils/emailHelper");
 
 exports.registerUser = async (req, res) => {
   try {
@@ -89,6 +90,100 @@ exports.currentUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: error.message,
+      success: false,
+    });
+  }
+};
+
+const otpgenerator = function () {
+  return Math.floor(Math.random() * 1000 + 90000);
+};
+
+exports.forgetPassword = async (req, res) => {
+  try {
+    //1.Ask email
+    //2. che ck if email is present or not
+    //3. if email is not present -> user not found
+    //4. if email is present -> create otp send to email
+    //5. also store otp in user model
+    // to avoid collision
+    // response -> unique url with the id of the user that will form your unique link for reset password
+
+    if (req.body.email == undefined) {
+      return res.status(401).json({
+        success: false,
+        message: "Please enter the email to reset password",
+      });
+    }
+
+    let user = await User.findOne({ email: req.body.email });
+    if (user == null) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const otp = otpgenerator();
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 10 * 60 * 10000;
+
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "otp sent to email",
+    });
+
+    await emailHelper("otp.html", user.email, { name: user.name, otp });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { otp, password } = req.body;
+    if (!password || !otp) {
+      return res.status(401).json({
+        success: false,
+        message: "invalid request",
+      });
+    }
+
+    //search for user with id
+    const user = await User.findOne({ otp });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "user not found",
+      });
+    }
+
+    //check if otp is expired - 10min limit
+    if (Date.now() > user.otpExpiry) {
+      return res.status(401).json({
+        success: false,
+        message: "otp expired",
+      });
+    }
+
+    user.password = password;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "password reset successfully",
+      status: true,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
       success: false,
     });
   }

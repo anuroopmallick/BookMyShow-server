@@ -53,10 +53,7 @@ async function emailHelper(templateName, reveiverEmail, creds) {
   }
 }
 
-emailHelper("otp.html", "refdc", {
-  name: "Anuroop",
-  otp: "1234",
-});
+module.exports = emailHelper;
 
 // Three wayd to send email
 // sdk
